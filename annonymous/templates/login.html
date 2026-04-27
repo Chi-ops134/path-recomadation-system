@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Login — LearnPath AI{% endblock %}
+{% block extra_css %}
+<style>
+  body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px; position:relative; overflow:hidden; }
+  body::before { content:''; position:absolute; width:600px; height:600px; background:radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 65%); top:-200px; left:-100px; border-radius:50%; pointer-events:none; }
+  body::after { content:''; position:absolute; width:500px; height:500px; background:radial-gradient(circle, rgba(45,212,191,0.05) 0%, transparent 65%); bottom:-150px; right:-100px; border-radius:50%; pointer-events:none; }
+
+  .login-card {
+    width:100%; max-width:420px;
+    background: var(--card);
+    border:1px solid var(--border2);
+    border-radius:24px; padding:44px 40px;
+    position:relative; z-index:1;
+    animation: fadeUp 0.4s ease both;
+  }
+  .login-card::before {
+    content:''; position:absolute; inset:-1px; border-radius:25px;
+    background:linear-gradient(135deg, rgba(16,185,129,0.12), transparent 60%, rgba(45,212,191,0.06));
+    z-index:-1; pointer-events:none;
+  }
+
+  .lbrand { display:flex; align-items:center; gap:10px; margin-bottom:32px; }
+  .lbrand-logo { width:40px; height:40px; background:linear-gradient(135deg, #10b981, #2dd4bf); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .lbrand-name { font-family:'Clash Display',sans-serif; font-size:20px; font-weight:700; }
+  .lbrand-name span { color:#10b981; }
+
+  h2 { font-family:'Clash Display',sans-serif; font-size:24px; font-weight:700; letter-spacing:-0.5px; margin-bottom:6px; }
+  .lsub { font-size:14px; color:var(--muted); margin-bottom:32px; }
+  .lsub a { color:var(--green); text-decoration:none; font-weight:500; }
+  .lsub a:hover { text-decoration:underline; }
+
+  .fg { margin-bottom:16px; }
+  .fg label { display:block; font-size:13px; font-weight:500; color:#94a3b8; margin-bottom:6px; }
+  .fg input {
+    width:100%; background:var(--surface);
+    border:1px solid var(--border2); border-radius:10px;
+    padding:12px 14px; color:var(--text);
+    font-family:'Satoshi',sans-serif; font-size:14px; outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .fg input:focus { border-color:rgba(16,185,129,0.5); box-shadow:0 0 0 3px rgba(16,185,129,0.07); background:#0d1c16; }
+  .fg input::placeholder { color:#2d3748; }
+  .ferr { font-size:12px; color:var(--error); margin-top:4px; }
+
+  .sbtn {
+    width:100%; padding:13px; margin-top:6px;
+    background:linear-gradient(135deg, #10b981, #2dd4bf);
+    color:#060910; font-family:'Clash Display',sans-serif;
+    font-size:15px; font-weight:700; border:none; border-radius:12px;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .sbtn:hover { opacity:0.88; transform:translateY(-1px); box-shadow:0 8px 24px rgba(16,185,129,0.3); }
+
+  .divider { display:flex; align-items:center; gap:12px; margin:24px 0; color:var(--muted); font-size:12px; }
+  .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--border2); }
+
+  .reg-cta { text-align:center; font-size:14px; color:var(--muted); }
+  .reg-cta a { color:var(--green); text-decoration:none; font-weight:600; }
+  .reg-cta a:hover { text-decoration:underline; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="login-card">
+  <div class="lbrand">
+    <div class="lbrand-logo">🎓</div>
+    <span class="lbrand-name">Learn<span>Path</span> AI</span>
+  </div>
+  <h2>Welcome back 👋</h2>
+  <p class="lsub">Sign in to continue your learning journey</p>
+
+  <form method="POST" novalidate>
+    {% csrf_token %}
+    <div class="fg">
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Your username" autofocus/>
+      {% if form.username.errors %}<div class="ferr">{{ form.username.errors.0 }}</div>{% endif %}
+    </div>
+    <div class="fg">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Your password"/>
+      {% if form.password.errors %}<div class="ferr">{{ form.password.errors.0 }}</div>{% endif %}
+    </div>
+    <button type="submit" class="sbtn">Sign In →</button>
+  </form>
+
+  <div class="divider">or</div>
+  <div class="reg-cta">New here? <a href="{% url 'register' %}">Create a free account</a></div>
+</div>
+{% endblock %}

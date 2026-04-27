@@ -1,0 +1,100 @@
+
+{% extends 'base.html' %}
+{% block title %}{{ roadmap.title }}{% endblock %}
+{% block content %}
+<style>
+  .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+  .title { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
+  .summary { color: #94a3b8; margin-bottom: 30px; line-height: 1.7; }
+  .week-card { background: var(--card); border: 1px solid var(--border2); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .week-range { color: #10b981; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .week-topic { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+  .week-desc { color: #94a3b8; line-height: 1.7; margin-bottom: 16px; }
+  .resources { margin-bottom: 10px; }
+  .resources h4 { font-size: 13px; color: #64748b; margin-bottom: 8px; }
+  .resource-item { background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.15); border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: 13px; }
+  .skills-section { background: var(--card); border: 1px solid var(--border2); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .skills-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  .skill-tag { display: inline-block; background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); border-radius: 20px; padding: 6px 14px; margin: 4px; font-size: 13px; }
+  .tips-section { background: var(--card); border: 1px solid var(--border2); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .tip-item { padding: 10px 0; border-bottom: 1px solid var(--border2); color: #94a3b8; font-size: 14px; }
+  .tip-item:last-child { border-bottom: none; }
+  .outcome-section { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(45,212,191,0.05)); border: 1px solid rgba(16,185,129,0.2); border-radius: 16px; padding: 24px; margin-bottom: 30px; }
+  .btn-back { display: inline-block; background: var(--card); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 20px; color: var(--text); text-decoration: none; margin-bottom: 24px; font-size: 14px; }
+</style>
+
+<div class="container">
+  <a href="{% url 'history' %}" class="btn-back">← All Paths</a>
+
+  <div class="title">{{ roadmap.title }}</div>
+  <div class="summary">{{ roadmap.summary }}</div>
+
+  <h3 style="margin-bottom:16px;">📅 Weekly Roadmap</h3>
+
+  {% for week in roadmap.weeks %}
+  <div class="week-card">
+    <div class="week-range">{{ week.week_range }}</div>
+    <div class="week-topic">{{ week.topic }}</div>
+    <div class="week-desc">{{ week.description }}</div>
+    <div class="resources">
+      <h4>📚 Resources:</h4>
+      {% for resource in week.resources %}
+      <div class="resource-item">{{ resource }}</div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="skills-section">
+    <div class="skills-title">🎯 Skills You Will Gain</div>
+    {% for skill in roadmap.skills_gained %}
+    <span class="skill-tag">{{ skill }}</span>
+    {% endfor %}
+  </div>
+
+  <div class="outcome-section">
+    <div class="skills-title">🏆 Final Outcome</div>
+    <p style="color:#94a3b8; line-height:1.7;">{{ roadmap.final_outcome }}</p>
+  </div>
+
+  <div class="tips-section">
+    <div class="skills-title">💡 Tips</div>
+    {% for tip in roadmap.tips %}
+    <div class="tip-item">✅ {{ tip }}</div>
+    {% endfor %}
+  </div>
+</div><!-- YouTube Videos Section -->
+{% if youtube %}
+<div style="max-width:900px; margin:0 auto 40px; padding:0 20px;">
+  <div style="background:var(--card); border:1px solid var(--border2); border-radius:16px; padding:24px;">
+    <h3 style="font-size:20px; font-weight:700; margin-bottom:20px; color:white;">🎬 Free YouTube Videos</h3>
+
+    {% for week_range, videos in youtube.items %}
+    {% if videos %}
+    <div style="margin-bottom:24px;">
+      <h4 style="color:#10b981; font-size:14px; margin-bottom:12px;">📅 {{ week_range }}</h4>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px;">
+        {% for video in videos %}
+        <a href="{{ video.url }}" target="_blank" style="text-decoration:none;">
+          <div style="background:#0d1525; border:1px solid #1e3a2f; border-radius:12px; overflow:hidden;">
+            <img src="{{ video.thumbnail }}" style="width:100%; height:150px; object-fit:cover;"/>
+            <div style="padding:10px;">
+              <p style="font-size:13px; color:#fff; margin-bottom:4px;">{{ video.title|truncatechars:60 }}</p>
+              <p style="font-size:11px; color:#64748b;">{{ video.channel }}</p>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+<!-- YouTube Videos Section -->
+

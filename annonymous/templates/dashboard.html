@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — LearnPath AI{% endblock %}
+{% block extra_css %}
+<style>
+  .greeting h1 { font-family:'Clash Display',sans-serif; font-size:30px; font-weight:700; letter-spacing:-0.5px; margin-bottom:5px; }
+  .greeting h1 span { background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .greeting p { color:var(--muted); margin-bottom:36px; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-bottom:36px; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; position:relative; overflow:hidden; }
+  .stat::after { content:''; position:absolute; top:-20px; right:-20px; width:80px; height:80px; border-radius:50%; opacity:0.06; }
+  .stat.s1::after { background:var(--accent); }
+  .stat.s2::after { background:var(--accent2); }
+  .stat.s3::after { background:var(--green); }
+  .stat-icon { font-size:22px; margin-bottom:14px; }
+  .stat-val { font-family:'Clash Display',sans-serif; font-size:30px; font-weight:700; letter-spacing:-1px; margin-bottom:4px; }
+  .stat-label { font-size:13px; color:var(--muted); }
+  .grid2 { display:grid; grid-template-columns:1.2fr 1fr; gap:24px; margin-bottom:32px; }
+  .card-title { font-family:'Clash Display',sans-serif; font-size:17px; font-weight:700; margin-bottom:20px; }
+  .profile-row { margin-bottom:14px; }
+  .profile-row .lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:5px; }
+  .tags { display:flex; flex-wrap:wrap; gap:7px; }
+  .level-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 13px; border-radius:20px; font-size:13px; font-weight:600; }
+  .level-badge.beginner     { background:rgba(52,211,153,0.1);  border:1px solid rgba(52,211,153,0.2);  color:var(--green); }
+  .level-badge.intermediate { background:rgba(79,142,247,0.1);  border:1px solid rgba(79,142,247,0.2);  color:var(--accent); }
+  .level-badge.advanced     { background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); color:var(--accent2); }
+  .gen-card {
+    background: linear-gradient(135deg, #0c1a3a 0%, #140d35 100%);
+    border:1px solid rgba(79,142,247,0.15); border-radius:14px; padding:30px;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .gen-card h3 { font-family:'Clash Display',sans-serif; font-size:20px; font-weight:700; margin-bottom:10px; line-height:1.3; }
+  .gen-card p  { font-size:14px; color:var(--muted); line-height:1.6; margin-bottom:24px; }
+  .recent-title { font-family:'Clash Display',sans-serif; font-size:17px; font-weight:700; margin-bottom:16px; }
+  .path-item {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:16px 20px; margin-bottom:12px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .path-item-left h4 { font-size:14px; font-weight:600; margin-bottom:4px; }
+  .path-item-left span { font-size:12px; color:var(--muted); }
+  @media(max-width:768px){ .stats{grid-template-columns:1fr}; .grid2{grid-template-columns:1fr}; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page animate">
+  <div class="greeting">
+    <h1>Hello, <span>{{ profile.full_name }}</span> 👋</h1>
+    <p>Ready to continue your personalized learning journey?</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat s1">
+      <div class="stat-icon">🧠</div>
+      <div class="stat-val">{{ profile.skills_list|length }}</div>
+      <div class="stat-label">Skills Listed</div>
+    </div>
+    <div class="stat s2">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-val">{{ profile.interests_list|length }}</div>
+      <div class="stat-label">Interests</div>
+    </div>
+    <div class="stat s3">
+      <div class="stat-icon">🗺️</div>
+      <div class="stat-val">{{ total_paths }}</div>
+      <div class="stat-label">Paths Generated</div>
+    </div>
+  </div>
+
+  <!-- Profile + Generate -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">📋 Your Profile</div>
+      <div class="profile-row">
+        <div class="lbl">Level</div>
+        <span class="level-badge {{ profile.experience_level }}">
+          {% if profile.experience_level == 'beginner' %}🌱{% elif profile.experience_level == 'intermediate' %}🚀{% else %}⚡{% endif %}
+          {{ profile.get_experience_level_display }}
+        </span>
+      </div>
+      <div class="profile-row">
+        <div class="lbl">Skills</div>
+        <div class="tags">
+          {% for s in profile.skills_list %}<span class="tag tag-blue">{{ s }}</span>{% endfor %}
+        </div>
+      </div>
+      <div class="profile-row">
+        <div class="lbl">Interests</div>
+        <div class="tags">
+          {% for i in profile.interests_list %}<span class="tag tag-purple">{{ i }}</span>{% endfor %}
+        </div>
+      </div>
+      <div style="margin-top:20px;">
+        <a href="{% url 'profile' %}" class="btn btn-outline btn-sm">View Full Profile →</a>
+      </div>
+    </div>
+
+    <div class="gen-card">
+      <div>
+        <h3>🤖 Generate AI Learning Path</h3>
+        <p>Tell Claude AI what you want to learn. Get a week-by-week roadmap + free YouTube videos instantly.</p>
+      </div>
+      <a href="{% url 'generate' %}" class="btn btn-primary">✨ Generate My Roadmap</a>
+    </div>
+  </div>
+
+  <!-- Recent Paths -->
+  {% if recent_paths %}
+  <div class="recent-title">📜 Recent Paths</div>
+  {% for path in recent_paths %}
+  <div class="path-item">
+    <div class="path-item-left">
+      <h4>{{ path.title }}</h4>
+      <span>{{ path.created_at|date:"M d, Y" }} · {{ path.roadmap_json.total_weeks }} weeks</span>
+    </div>
+    <a href="{% url 'roadmap' path.id %}" class="btn btn-outline btn-sm">View →</a>
+  </div>
+  {% endfor %}
+  <div style="margin-top:8px;">
+    <a href="{% url 'history' %}" class="btn btn-outline btn-sm">View All History →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

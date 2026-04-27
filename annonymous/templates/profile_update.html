@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile — LearnPath AI{% endblock %}
+{% block extra_css %}
+<style>
+  .page { max-width:680px; margin:0 auto; padding:40px; }
+  h1 { font-family:'Clash Display',sans-serif; font-size:26px; font-weight:700; margin-bottom:6px; }
+  .sub { color:var(--muted2); font-size:14px; margin-bottom:32px; }
+  .card { background:var(--card); border:1px solid var(--border2); border-radius:18px; padding:32px; }
+  .fsec { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); display:flex; align-items:center; gap:10px; margin:0 0 16px; }
+  .fsec::after { content:''; flex:1; height:1px; background:var(--border2); }
+  .frow { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .fg { margin-bottom:14px; }
+  .fg label { display:block; font-size:13px; font-weight:500; color:#94a3b8; margin-bottom:6px; }
+  .fg input, .fg select, .fg textarea {
+    width:100%; background:var(--surface); border:1px solid var(--border2);
+    border-radius:10px; padding:11px 14px; color:var(--text);
+    font-family:'Satoshi',sans-serif; font-size:14px; outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s; appearance:none;
+  }
+  .fg input[type="file"] { padding:8px 14px; cursor:pointer; }
+  .fg textarea { resize:vertical; min-height:80px; }
+  .fg input:focus, .fg select:focus, .fg textarea:focus { border-color:rgba(16,185,129,0.5); box-shadow:0 0 0 3px rgba(16,185,129,0.07); background:#0d1c16; }
+  .fg input::placeholder, .fg textarea::placeholder { color:#2d3748; }
+  .ferr { font-size:12px; color:var(--error); margin-top:4px; }
+  .level-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .lv-input { display:none; }
+  .lv-label { display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 8px; border:1px solid var(--border2); border-radius:12px; cursor:pointer; transition:all 0.2s; background:var(--card2); text-align:center; }
+  .lv-label .em { font-size:22px; }
+  .lv-label .nm { font-size:12px; font-weight:600; color:var(--muted2); }
+  .lv-input:checked + .lv-label { border-color:var(--green); background:rgba(16,185,129,0.07); box-shadow:0 0 0 3px rgba(16,185,129,0.07); }
+  .lv-input:checked + .lv-label .nm { color:var(--green); }
+  .btn-row { display:flex; gap:12px; margin-top:8px; }
+  .sbtn {
+    flex:1; padding:13px; background:linear-gradient(135deg,#10b981,#2dd4bf);
+    color:#060910; font-family:'Clash Display',sans-serif; font-size:15px; font-weight:700;
+    border:none; border-radius:12px; cursor:pointer; transition:all 0.2s;
+  }
+  .sbtn:hover { opacity:0.85; transform:translateY(-1px); box-shadow:0 8px 24px rgba(16,185,129,0.3); }
+  .cbtn {
+    padding:13px 24px; background:transparent; border:1px solid var(--border2);
+    color:var(--muted2); border-radius:12px; font-size:14px; cursor:pointer;
+    text-decoration:none; display:flex; align-items:center; transition:all 0.2s;
+  }
+  .cbtn:hover { border-color:var(--muted); color:var(--text); }
+  @media(max-width:600px) { .frow { grid-template-columns:1fr; } .page { padding:20px 16px; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page page">
+  <h1>✏️ Edit Profile</h1>
+  <p class="sub">Update your information and learning preferences below.</p>
+  <div class="card">
+    <form method="POST" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      <div class="fsec">Personal Info</div>
+      <div class="frow">
+        <div class="fg">
+          <label>Full Name</label>
+          <input type="text" name="full_name" value="{{ form.full_name.value|default:'' }}"/>
+          {% if form.full_name.errors %}<div class="ferr">{{ form.full_name.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="fg">
+          <label>Email</label>
+          <input type="email" name="email" value="{{ form.email.value|default:'' }}"/>
+          {% if form.email.errors %}<div class="ferr">{{ form.email.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+      <div class="fg">
+        <label>Bio (optional)</label>
+        <textarea name="bio" placeholder="Tell us about yourself...">{{ form.bio.value|default:'' }}</textarea>
+      </div>
+      <div class="fg">
+        <label>Profile Picture</label>
+        <input type="file" name="profile_picture" accept="image/*"/>
+      </div>
+
+      <div class="fsec">Learning Profile</div>
+      <div class="fg">
+        <label>Skills</label>
+        <input type="text" name="skills" value="{{ form.skills.value|default:'' }}" placeholder="Python, SQL..."/>
+      </div>
+      <div class="fg">
+        <label>Interests</label>
+        <input type="text" name="interests" value="{{ form.interests.value|default:'' }}" placeholder="ML, Web Dev..."/>
+      </div>
+      <div class="fg">
+        <label>Learning Goals</label>
+        <textarea name="learning_goals" placeholder="What do you want to achieve?">{{ form.learning_goals.value|default:'' }}</textarea>
+      </div>
+      <div class="fg">
+        <label>Experience Level</label>
+        <div class="level-grid">
+          <div>
+            <input class="lv-input" type="radio" name="experience_level" id="lv-beg" value="beginner" {% if form.experience_level.value == 'beginner' %}checked{% endif %}/>
+            <label class="lv-label" for="lv-beg"><span class="em">🌱</span><span class="nm">Beginner</span></label>
+          </div>
+          <div>
+            <input class="lv-input" type="radio" name="experience_level" id="lv-int" value="intermediate" {% if form.experience_level.value == 'intermediate' %}checked{% endif %}/>
+            <label class="lv-label" for="lv-int"><span class="em">🚀</span><span class="nm">Intermediate</span></label>
+          </div>
+          <div>
+            <input class="lv-input" type="radio" name="experience_level" id="lv-adv" value="advanced" {% if form.experience_level.value == 'advanced' %}checked{% endif %}/>
+            <label class="lv-label" for="lv-adv"><span class="em">⚡</span><span class="nm">Advanced</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <a href="{% url 'profile' %}" class="cbtn">Cancel</a>
+        <button type="submit" class="sbtn">Save Changes ✓</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

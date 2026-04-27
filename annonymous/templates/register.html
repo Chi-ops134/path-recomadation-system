@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% block title %}Register — LearnPath AI{% endblock %}
+{% block extra_css %}
+<style>
+  body { display: flex; min-height: 100vh; overflow-x: hidden; }
+
+  /* Left glow panel */
+  .auth-left {
+    width: 44%;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #060e18 0%, #071a14 40%, #060d1a 100%);
+    padding: 52px 56px;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .auth-left::before {
+    content: '';
+    position: absolute;
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%);
+    top: -80px; left: -80px; border-radius: 50%;
+  }
+  .auth-left::after {
+    content: '';
+    position: absolute;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(45,212,191,0.07) 0%, transparent 70%);
+    bottom: -60px; right: -40px; border-radius: 50%;
+  }
+
+  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 60px; position: relative; z-index: 1; }
+  .brand-logo {
+    width: 46px; height: 46px;
+    background: linear-gradient(135deg, #10b981, #2dd4bf);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+  .brand-name { font-family: 'Clash Display', sans-serif; font-size: 22px; font-weight: 700; }
+  .brand-name span { color: #10b981; }
+
+  .left-title {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 38px; font-weight: 700; line-height: 1.15;
+    letter-spacing: -1px; margin-bottom: 18px;
+    position: relative; z-index: 1;
+  }
+  .left-title .grad {
+    background: linear-gradient(90deg, #10b981, #2dd4bf);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .left-sub { font-size: 15px; color: #64748b; line-height: 1.7; max-width: 300px; margin-bottom: 48px; position: relative; z-index: 1; }
+
+  .features { display: flex; flex-direction: column; gap: 22px; position: relative; z-index: 1; }
+  .feat { display: flex; align-items: flex-start; gap: 14px; }
+  .feat-icon {
+    width: 40px; height: 40px; flex-shrink: 0;
+    border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px;
+    margin-top: 2px;
+  }
+  .feat-icon.g { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); }
+  .feat-icon.t { background: rgba(45,212,191,0.1); border: 1px solid rgba(45,212,191,0.2); }
+  .feat-icon.b { background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); }
+  .feat-text strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .feat-text p { font-size: 13px; color: #64748b; line-height: 1.5; }
+
+  /* Floating stat cards */
+  .fcard {
+    position: absolute; z-index: 2;
+    background: rgba(17,24,39,0.92);
+    border: 1px solid rgba(16,185,129,0.15);
+    border-radius: 14px; padding: 12px 18px;
+    backdrop-filter: blur(12px);
+  }
+  .fcard.c1 { bottom: 100px; right: 10px; }
+  .fcard.c2 { top: 140px; right: 30px; }
+  .fcard .fc-lbl { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+  .fcard .fc-val { font-family: 'Clash Display', sans-serif; font-size: 22px; font-weight: 700; color: #10b981; }
+
+  /* Right form panel */
+  .auth-right {
+    flex: 1; overflow-y: auto;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 40px 48px 40px 56px;
+    background: var(--bg);
+  }
+
+  .form-wrap { width: 100%; max-width: 500px; padding-top: 16px; animation: fadeUp 0.5s ease both; }
+
+  .form-head { margin-bottom: 32px; }
+  .form-head h2 { font-family: 'Clash Display', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 7px; }
+  .form-head p { font-size: 14px; color: var(--muted); }
+  .form-head p a { color: var(--green); text-decoration: none; font-weight: 500; }
+  .form-head p a:hover { text-decoration: underline; }
+
+  /* Section divider */
+  .fsec-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); display: flex; align-items: center; gap: 10px; margin-bottom: 16px; margin-top: 6px;
+  }
+  .fsec-label::after { content: ''; flex: 1; height: 1px; background: var(--border2); }
+
+  .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .fg { margin-bottom: 14px; }
+  .fg label { display: block; font-size: 13px; font-weight: 500; color: #94a3b8; margin-bottom: 6px; }
+  .fg input, .fg select, .fg textarea {
+    width: 100%; background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 10px; padding: 11px 14px;
+    color: var(--text); font-family: 'Satoshi', sans-serif; font-size: 14px;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s; appearance: none;
+  }
+  .fg textarea { resize: vertical; min-height: 78px; }
+  .fg input:focus, .fg select:focus, .fg textarea:focus {
+    border-color: rgba(16,185,129,0.5);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.07);
+    background: #0d1c16;
+  }
+  .fg input::placeholder, .fg textarea::placeholder { color: #2d3748; }
+  .fg select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; cursor: pointer;
+  }
+  .ferr { font-size: 12px; color: var(--error); margin-top: 5px; }
+  .fhint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* Level cards */
+  .level-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .lv-input { display: none; }
+  .lv-label {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 14px 8px; border: 1px solid var(--border2); border-radius: 12px;
+    cursor: pointer; transition: all 0.2s; background: var(--card); text-align: center;
+  }
+  .lv-label .em { font-size: 22px; }
+  .lv-label .nm { font-size: 12px; font-weight: 600; color: var(--muted2); }
+  .lv-input:checked + .lv-label { border-color: var(--green); background: rgba(16,185,129,0.07); box-shadow: 0 0 0 3px rgba(16,185,129,0.08); }
+  .lv-input:checked + .lv-label .nm { color: var(--green); }
+
+  /* Submit */
+.sbtn {
+    width: 100%; padding: 14px; margin-top: 10px;
+    background: linear-gradient(135deg, var(--green), var(--teal));
+    color: #abaeb6; font-family: 'Clash Display', sans-serif;
+    font-size: 15px; font-weight: 700; border: none; border-radius: 12px;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px;
+  }
+  .sbtn:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(16,185,129,0.3); }
+  .sbtn:active { transform: translateY(0); }
+
+  @media(max-width:900px) { .auth-left { display: none; } .auth-right { padding: 28px 20px; } .frow { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-left">
+  <div class="brand">
+    <div class="brand-logo">🎓</div>
+    <span class="brand-name">Learn<span>Path</span> AI</span>
+  </div>
+  <h1 class="left-title">Build Your<br><span class="grad">AI Learning</span><br>Roadmap</h1>
+  <p class="left-sub">Register once. Let Claude AI analyze your skills and create a personalized path to your goals.</p>
+  <div class="features">
+    <div class="feat">
+      <div class="feat-icon g">🤖</div>
+      <div class="feat-text"><strong>AI-Generated Roadmap</strong><p>Claude reads your profile and builds a week-by-week learning plan.</p></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon t">🎬</div>
+      <div class="feat-text"><strong>Free YouTube Videos</strong><p>Every roadmap includes handpicked free tutorial videos below it.</p></div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon b">📜</div>
+      <div class="feat-text"><strong>Track Your Progress</strong><p>Mark steps complete and review all your past learning paths.</p></div>
+    </div>
+  </div>
+  <div class="fcard c1"><div class="fc-lbl">Paths Generated</div><div class="fc-val">3,241</div></div>
+  <div class="fcard c2"><div class="fc-lbl">Avg. Goal Time</div><div class="fc-val">12 wks</div></div>
+</div>
+
+<div class="auth-right">
+  <div class="form-wrap">
+    <div class="form-head">
+      <h2>Create your account</h2>
+      <p>Already registered? <a href="{% url 'login' %}">Sign in →</a></p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      <div class="fsec-label">Account Details</div>
+      <div class="frow">
+        <div class="fg">
+          <label>Full Name</label>
+          <input type="text" name="full_name" value="{{ form.full_name.value|default:'' }}" placeholder="Jane Doe"/>
+          {% comment %} {% if form.full_name.errors %}<div class="ferr">{{ form.full_name.errors.0 }}</div>{% endif %} {% endcomment %}
+        </div>
+        <div class="fg">
+          <label>Username</label>
+          <input type="text" name="username" value="{{ form.username.value|default:'' }}" placeholder="janedoe"/>
+          {% comment %} {% if form.username.errors %}<div class="ferr">{{ form.username.errors.0 }}</div>{% endif %} {% endcomment %}
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Email Address</label>
+        <input type="email" name="email" value="{{ form.email.value|default:'' }}" placeholder="jane@example.com"/>
+        {% if form.email.errors %}<div class="ferr">{{ form.email.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="frow">
+        <div class="fg">
+          <label>Password</label>
+          <input type="password" name="password1" placeholder="Min. 8 characters"/>
+          {% if form.password1.errors %}<div class="ferr">{{ form.password1.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="fg">
+          <label>Confirm Password</label>
+          <input type="password" name="password2" placeholder="Re-enter password"/>
+          {% if form.password2.errors %}<div class="ferr">{{ form.password2.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="fsec-label">Learning Profile</div>
+
+      <div class="fg">
+        <label>Current Skills</label>
+        <input type="text" name="skills" value="{{ form.skills.value|default:'' }}" placeholder="Python, SQL, HTML..."/>
+        <div class="fhint">Separate with commas</div>
+        {% if form.skills.errors %}<div class="ferr">{{ form.skills.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="fg">
+        <label>Interests</label>
+        <input type="text" name="interests" value="{{ form.interests.value|default:'' }}" placeholder="Machine Learning, Web Dev..."/>
+        {% if form.interests.errors %}<div class="ferr">{{ form.interests.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="fg">
+        <label>Learning Goals</label>
+        <textarea name="learning_goals" placeholder="I want to become a data scientist and build AI apps...">{{ form.learning_goals.value|default:'' }}</textarea>
+        {% if form.learning_goals.errors %}<div class="ferr">{{ form.learning_goals.errors.0 }}</div>{% endif %}
+      </div>
+
+      {% comment %} <div class="fg">
+        <label>Experience Level</label>
+        <div class="level-grid">
+          <div>
+            <input class="lv-input" type="radio" name="experience_level" id="lv-beg" value="beginner" {% if not form.experience_level.value or form.experience_level.value == 'beginner' %}checked{% endif %}/>
+            <label class="lv-label" for="lv-beg"><span class="em">🌱</span><span class="nm">Beginner</span></label>
+          </div>
+          <div>
+            <input class="lv-input" type="radio" name="experience_level" id="lv-int" value="intermediate" {% if form.experience_level.value == 'intermediate' %}checked{% endif %}/>
+            <label class="lv-label" for="lv-int"><span class="em">🚀</span><span class="nm">Intermediate</span></label>
+          </div>
+          <div>
+            <input class="lv-input" type="radio" name="experience_level" id="lv-adv" value="advanced" {% if form.experience_level.value == 'advanced' %}checked{% endif %}/>
+            <label class="lv-label" for="lv-adv"><span class="em">⚡</span><span class="nm">Advanced</span></label>
+          </div>
+        </div> {% endcomment %}<div class="fg">
+  <label>Experience Level</label>
+  <select name="experience_level">
+    <option value="beginner">🌱 Beginner</option>
+    <option value="intermediate">🚀 Intermediate</option>
+    <option value="advanced">⚡ Advanced</option>
+  </select>
+</div>
+      {% comment %} </div> {% endcomment %}
+
+      <button type="submit" class="sbtn">Create Account & Start Learning →</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

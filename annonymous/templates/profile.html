@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}My Profile — LearnPath AI{% endblock %}
+{% block extra_css %}
+<style>
+  .page { max-width:860px; margin:0 auto; padding:40px; }
+  .ph { display:flex; align-items:center; gap:24px; margin-bottom:36px; padding:32px; background:var(--card); border:1px solid var(--border2); border-radius:20px; }
+  .ph-avatar {
+    width:80px; height:80px; border-radius:50%;
+    background:linear-gradient(135deg,#10b981,#2dd4bf);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Clash Display',sans-serif; font-size:32px; font-weight:700; color:#060910;
+    flex-shrink:0;
+  }
+  .ph-avatar img { width:80px; height:80px; border-radius:50%; object-fit:cover; }
+  .ph-name { font-family:'Clash Display',sans-serif; font-size:24px; font-weight:700; margin-bottom:4px; }
+  .ph-email { font-size:14px; color:var(--muted2); margin-bottom:10px; }
+  .badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:20px; font-size:13px; font-weight:600; }
+  .badge.beg { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:var(--green); }
+  .badge.int { background:rgba(45,212,191,0.1); border:1px solid rgba(45,212,191,0.2); color:var(--teal); }
+  .badge.adv { background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); color:var(--purple); }
+
+  .ph-actions { margin-left:auto; display:flex; gap:10px; flex-direction:column; }
+  .btn-edit {
+    padding:9px 20px; border-radius:10px;
+    background:linear-gradient(135deg,#10b981,#2dd4bf);
+    color:#060910; font-family:'Clash Display',sans-serif;
+    font-size:13px; font-weight:700; border:none; cursor:pointer;
+    text-decoration:none; text-align:center; display:block; transition:all 0.2s;
+  }
+  .btn-edit:hover { opacity:0.85; }
+  .btn-del {
+    padding:9px 20px; border-radius:10px;
+    background:transparent; border:1px solid rgba(248,113,113,0.3);
+    color:var(--error); font-size:13px; font-weight:500; cursor:pointer;
+    text-decoration:none; text-align:center; display:block; transition:all 0.2s;
+  }
+  .btn-del:hover { background:rgba(248,113,113,0.08); }
+
+  .section { background:var(--card); border:1px solid var(--border2); border-radius:18px; padding:28px; margin-bottom:20px; }
+  .sec-title { font-family:'Clash Display',sans-serif; font-size:16px; font-weight:700; margin-bottom:18px; }
+  .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .info-item .lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:5px; }
+  .info-item .val { font-size:14px; line-height:1.6; }
+  .tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+  .tag { padding:4px 10px; border-radius:20px; font-size:12px; font-weight:500; }
+  .tag.g { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:var(--green); }
+  .tag.t { background:rgba(45,212,191,0.1); border:1px solid rgba(45,212,191,0.2); color:var(--teal); }
+
+  @media(max-width:600px) { .ph{flex-direction:column;text-align:center;} .ph-actions{flex-direction:row;margin-left:0;} .info-grid{grid-template-columns:1fr;} }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page page">
+  <!-- Profile Header -->
+  <div class="ph">
+    <div class="ph-avatar">
+      {% if student.profile_picture %}
+        <img src="{{ student.profile_picture.url }}" alt="Profile"/>
+      {% else %}
+        {{ student.get_avatar_letter }}
+      {% endif %}
+    </div>
+    <div>
+      <div class="ph-name">{{ student.full_name }}</div>
+      <div class="ph-email">{{ student.email }}</div>
+      <span class="badge {% if student.experience_level == 'beginner' %}beg{% elif student.experience_level == 'intermediate' %}int{% else %}adv{% endif %}">
+        {% if student.experience_level == 'beginner' %}🌱{% elif student.experience_level == 'intermediate' %}🚀{% else %}⚡{% endif %}
+        {{ student.get_experience_level_display }}
+      </span>
+    </div>
+    <div class="ph-actions">
+      {% comment %} <a href="{% url 'profile_update' %}" class="btn-edit">✏️ Edit Profile</a>
+      <a href="{% url 'profile_delete' %}" class="btn-del">🗑️ Delete Account</a> {% endcomment %}
+      <a href="{% url 'profile-update' %}" class="btn-edit">✏️ Edit Profile</a>
+      <a href="{% url 'profile-delete' %}" class="btn-del">🗑️ Delete Account</a>
+    </div>
+  </div>
+
+  <!-- Bio -->
+  {% if student.bio %}
+  <div class="section">
+    <div class="sec-title">About Me</div>
+    <p style="font-size:14px; color:var(--muted2); line-height:1.7;">{{ student.bio }}</p>
+  </div>
+  {% endif %}
+
+  <!-- Learning Info -->
+  <div class="section">
+    <div class="sec-title">📚 Learning Details</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="lbl">Skills</div>
+        <div class="tags">{% for s in student.skills_list %}<span class="tag g">{{ s }}</span>{% endfor %}</div>
+      </div>
+      <div class="info-item">
+        <div class="lbl">Interests</div>
+        <div class="tags">{% for i in student.interests_list %}<span class="tag t">{{ i }}</span>{% endfor %}</div>
+      </div>
+      <div class="info-item" style="grid-column:1/-1;">
+        <div class="lbl">Learning Goals</div>
+        <div class="val" style="color:var(--muted2);">{{ student.learning_goals }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Info -->
+  <div class="section">
+    <div class="sec-title">🔐 Account Info</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="lbl">Username</div>
+        <div class="val">{{ student.user.username }}</div>
+      </div>
+      <div class="info-item">
+        <div class="lbl">Member Since</div>
+        <div class="val">{{ student.created_at|date:"F d, Y" }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

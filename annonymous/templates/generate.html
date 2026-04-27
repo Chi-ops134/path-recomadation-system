@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block title %}Generate Roadmap — LearnPath AI{% endblock %}
+{% block extra_css %}
+<style>
+  .page { max-width:740px; margin:0 auto; padding:40px; }
+  .ph { text-align:center; margin-bottom:44px; }
+  .ph-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:7px 16px; border-radius:20px; font-size:13px; font-weight:600;
+    background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:var(--green);
+    margin-bottom:18px;
+  }
+  .ph h1 { font-family:'Clash Display',sans-serif; font-size:34px; font-weight:700; letter-spacing:-1px; margin-bottom:12px; line-height:1.2; }
+  .ph h1 span { background:linear-gradient(90deg,#10b981,#2dd4bf); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .ph p { font-size:15px; color:var(--muted2); line-height:1.6; max-width:500px; margin:0 auto; }
+
+  .form-card { background:var(--card); border:1px solid var(--border2); border-radius:20px; padding:36px; }
+
+  .fg { margin-bottom:22px; }
+  .fg label { display:block; font-size:14px; font-weight:600; margin-bottom:8px; }
+  .fg label span { color:var(--muted); font-size:12px; font-weight:400; margin-left:4px; }
+  .fg input, .fg textarea {
+    width:100%; background:var(--surface);
+    border:1px solid var(--border2); border-radius:12px;
+    padding:14px 16px; color:var(--text);
+    font-family:'Satoshi',sans-serif; font-size:15px; outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .fg input:focus, .fg textarea:focus { border-color:rgba(16,185,129,0.5); box-shadow:0 0 0 3px rgba(16,185,129,0.07); background:#0d1c16; }
+  .fg input::placeholder { color:#2d3748; }
+
+  /* Option grid */
+  .opt-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .opt-grid.two { grid-template-columns:repeat(2,1fr); }
+  .oi { display:none; }
+  .ol {
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    padding:16px 8px; border:1px solid var(--border2); border-radius:12px;
+    cursor:pointer; transition:all 0.2s; background:var(--card2); text-align:center;
+  }
+  .ol .oe { font-size:24px; }
+  .ol .on { font-size:12px; font-weight:600; color:var(--muted2); }
+  .ol .os { font-size:11px; color:var(--muted); margin-top:1px; }
+  .oi:checked + .ol { border-color:var(--green); background:rgba(16,185,129,0.08); box-shadow:0 0 0 3px rgba(16,185,129,0.07); }
+  .oi:checked + .ol .on { color:var(--green); }
+
+  /* Profile preview */
+  .preview {
+    background:var(--card2); border:1px solid var(--border2); border-radius:14px;
+    padding:18px 20px; margin-bottom:22px;
+    display:flex; align-items:flex-start; gap:14px;
+  }
+  .preview-icon { font-size:28px; }
+  .preview-title { font-size:13px; font-weight:600; margin-bottom:6px; }
+  .tags { display:flex; flex-wrap:wrap; gap:5px; }
+  .tag { padding:3px 9px; border-radius:20px; font-size:12px; font-weight:500; }
+  .tag.g { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:var(--green); }
+  .tag.t { background:rgba(45,212,191,0.1); border:1px solid rgba(45,212,191,0.2); color:var(--teal); }
+
+  /* Generate button */
+  .gen-btn {
+    width:100%; padding:16px; margin-top:8px;
+    background:linear-gradient(135deg,#10b981,#2dd4bf);
+    color:#060910; font-family:'Clash Display',sans-serif;
+    font-size:16px; font-weight:700; border:none; border-radius:14px;
+    cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden;
+  }
+  .gen-btn:hover { opacity:0.86; transform:translateY(-2px); box-shadow:0 12px 30px rgba(16,185,129,0.35); }
+  .gen-btn:active { transform:translateY(0); }
+  .gen-btn.loading { opacity:0.7; pointer-events:none; }
+
+  /* Spinner */
+  .spinner { display:none; width:18px; height:18px; border:2px solid rgba(0,0,0,0.2); border-top-color:#060910; border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  @media(max-width:600px) { .page{padding:20px 16px;} .opt-grid{grid-template-columns:repeat(2,1fr);} .opt-grid.two{grid-template-columns:1fr 1fr;} }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page page">
+  <div class="ph">
+    <div class="ph-badge">🤖 Claude AI Powered</div>
+    <h1>Generate Your<br><span>AI Roadmap</span></h1>
+    <p>Tell us your goal and we'll build a personalized week-by-week learning path with free YouTube videos.</p>
+  </div>
+
+  <!-- Profile Preview -->
+  <div class="preview">
+    <div class="preview-icon">👤</div>
+    <div>
+      <div class="preview-title">Using your profile — {{ student.full_name }} ({{ student.get_experience_level_display }})</div>
+      <div class="tags">
+        {% for s in student.skills_list %}<span class="tag g">{{ s }}</span>{% endfor %}
+        {% for i in student.interests_list %}<span class="tag t">{{ i }}</span>{% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <form method="POST" id="genForm" novalidate>
+      {% csrf_token %}
+
+      <div class="fg">
+        <label>What do you want to learn? <span>Be specific for better results</span></label>
+        <input type="text" name="goal" placeholder="e.g. Become a Machine Learning Engineer, Learn Django web development..." required autofocus/>
+      </div>
+
+      <div class="fg">
+        <label>Hours available per week</label>
+        <div class="opt-grid">
+          <div><input class="oi" type="radio" name="time_available" id="t5" value="5"/><label class="ol" for="t5"><span class="oe">🕐</span><span class="on">5 hrs</span><span class="os">Casual</span></label></div>
+          <div><input class="oi" type="radio" name="time_available" id="t10" value="10" checked/><label class="ol" for="t10"><span class="oe">🕙</span><span class="on">10 hrs</span><span class="os">Regular</span></label></div>
+          <div><input class="oi" type="radio" name="time_available" id="t20" value="20"/><label class="ol" for="t20"><span class="oe">🔥</span><span class="on">20 hrs</span><span class="os">Serious</span></label></div>
+          <div><input class="oi" type="radio" name="time_available" id="t40" value="40"/><label class="ol" for="t40"><span class="oe">⚡</span><span class="on">40 hrs</span><span class="os">Full-time</span></label></div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Target completion time</label>
+        <div class="opt-grid two">
+          <div><input class="oi" type="radio" name="preferred_duration" id="d4" value="4"/><label class="ol" for="d4"><span class="oe">⚡</span><span class="on">1 Month</span><span class="os">4 weeks</span></label></div>
+          <div><input class="oi" type="radio" name="preferred_duration" id="d12" value="12" checked/><label class="ol" for="d12"><span class="oe">🚀</span><span class="on">3 Months</span><span class="os">12 weeks</span></label></div>
+          <div><input class="oi" type="radio" name="preferred_duration" id="d24" value="24"/><label class="ol" for="d24"><span class="oe">📈</span><span class="on">6 Months</span><span class="os">24 weeks</span></label></div>
+          <div><input class="oi" type="radio" name="preferred_duration" id="d48" value="48"/><label class="ol" for="d48"><span class="oe">🏆</span><span class="on">1 Year</span><span class="os">48 weeks</span></label></div>
+        </div>
+      </div>
+
+      <button type="submit" class="gen-btn" id="genBtn">
+        <span id="btnText">✨ Generate My Roadmap with AI</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  document.getElementById('genForm').addEventListener('submit', function() {
+    document.getElementById('btnText').style.display = 'none';
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('genBtn').classList.add('loading');
+    document.getElementById('genBtn').textContent = '';
+    const s = document.createElement('div');
+    s.className = 'spinner';
+    s.style.display = 'block';
+    document.getElementById('genBtn').appendChild(s);
+  });
+</script>
+{% endblock %}

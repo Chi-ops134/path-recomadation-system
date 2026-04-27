@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}LearnPath AI{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #07080f;
+      --surface:  #0e1120;
+      --card:     #131629;
+      --border:   rgba(255,255,255,0.07);
+      --accent:   #4f8ef7;
+      --accent2:  #a78bfa;
+      --green:    #34d399;
+      --yellow:   #fbbf24;
+      --red:      #f87171;
+      --text:     #e2e8f8;
+      --muted:    #64748b;
+      --radius:   14px;
+    }
+    body {
+      font-family: 'Satoshi', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+      background: rgba(13,17,32,0.85);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      position: sticky; top: 0; z-index: 999;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .nav-logo {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .nav-title {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 20px; font-weight: 700;
+      color: var(--text);
+    }
+    .nav-title span { color: var(--accent); }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 4px;
+    }
+    .nav-links a {
+      padding: 7px 14px;
+      border-radius: 9px;
+      font-size: 14px; font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .nav-links a.active { color: var(--accent); background: rgba(79,142,247,0.1); }
+
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-avatar {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 15px; color: #fff;
+      cursor: pointer;
+    }
+    .btn-logout {
+      padding: 7px 16px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Satoshi', sans-serif;
+      font-size: 13px; cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── Page Wrapper ── */
+    .page { padding: 40px; max-width: 1140px; margin: 0 auto; }
+
+    /* ── Toast Messages ── */
+    .toast-wrap { position: fixed; top: 80px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 14px; font-weight: 500;
+      display: flex; align-items: center; gap: 10px;
+      animation: slideIn 0.3s ease;
+      max-width: 360px;
+    }
+    .toast.success { background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.3); color: var(--green); }
+    .toast.error   { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+    .toast.info    { background: rgba(79,142,247,0.12);  border: 1px solid rgba(79,142,247,0.3);  color: var(--accent); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px;
+      border-radius: 10px;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.2s; border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,142,247,0.3); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-danger {
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.2);
+      color: var(--red);
+    }
+    .btn-danger:hover { background: rgba(248,113,113,0.2); }
+    .btn-sm { padding: 7px 14px; font-size: 13px; }
+
+    /* ── Form fields ── */
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: #94a3b8; margin-bottom: 7px; letter-spacing: 0.3px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: 'Satoshi', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: rgba(79,142,247,0.5);
+      box-shadow: 0 0 0 3px rgba(79,142,247,0.08);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: #2d3a55; }
+    .field-error { font-size: 12px; color: var(--red); margin-top: 5px; }
+    .help-text   { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── Tags ── */
+    .tag {
+      display: inline-block;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 500;
+    }
+    .tag-blue   { background: rgba(79,142,247,0.1);  border: 1px solid rgba(79,142,247,0.2);  color: var(--accent); }
+    .tag-purple { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.2); color: var(--accent2); }
+    .tag-green  { background: rgba(52,211,153,0.1);  border: 1px solid rgba(52,211,153,0.2);  color: var(--green); }
+    .tag-yellow { background: rgba(251,191,36,0.1);  border: 1px solid rgba(251,191,36,0.2);  color: var(--yellow); }
+
+    /* ── Page title ── */
+    .page-title {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 28px; font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .page-sub { font-size: 15px; color: var(--muted); margin-bottom: 32px; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #1e2740; border-radius: 3px; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate { animation: fadeUp 0.45s ease both; }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 0 16px; }
+      .page   { padding: 24px 16px; }
+      .nav-links { display: none; }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<nav class="navbar">
+  <a href="{% url 'dashboard' %}" class="nav-brand">
+    <div class="nav-logo">🎓</div>
+    <span class="nav-title">Learn<span>Path</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="{% url 'dashboard' %}"     class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">🏠 Dashboard</a>
+    <a href="{% url 'generate' %}"      class="{% if request.resolver_match.url_name == 'generate'  %}active{% endif %}">🤖 Generate</a>
+    <a href="{% url 'history' %}"       class="{% if request.resolver_match.url_name == 'history'   %}active{% endif %}">📜 History</a>
+    <a href="{% url 'profile' %}"       class="{% if request.resolver_match.url_name == 'profile'   %}active{% endif %}">👤 Profile</a>
+  </div>
+  <div class="nav-right">
+    {% if user.profile.profile_picture %}
+      <img src="{{ user.profile.profile_picture.url }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" />
+    {% else %}
+      <div class="nav-avatar">{{ user.profile.full_name|first|upper }}</div>
+    {% endif %}
+    <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
+  </div>
+</nav>
+{% endif %}
+
+<!-- Toast Messages -->
+{% if messages %}
+<div class="toast-wrap">
+  {% for msg in messages %}
+    <div class="toast {% if msg.tags == 'success' %}success{% elif msg.tags == 'error' %}error{% else %}info{% endif %}">
+      {% if msg.tags == 'success' %}✅{% elif msg.tags == 'error' %}❌{% else %}ℹ️{% endif %}
+      {{ msg }}
+    </div>
+  {% endfor %}
+</div>
+<script>
+  setTimeout(() => {
+    document.querySelectorAll('.toast').forEach(t => {
+      t.style.transition = 'opacity 0.4s';
+      t.style.opacity    = '0';
+      setTimeout(() => t.remove(), 400);
+    });
+  }, 3500);
+</script>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

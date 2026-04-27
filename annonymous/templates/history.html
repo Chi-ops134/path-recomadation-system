@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Path History — LearnPath AI{% endblock %}
+{% block extra_css %}
+<style>
+  .page { max-width:900px; margin:0 auto; padding:40px; }
+  .ph { margin-bottom:36px; }
+  .ph h1 { font-family:'Clash Display',sans-serif; font-size:28px; font-weight:700; letter-spacing:-0.5px; margin-bottom:6px; }
+  .ph p { font-size:15px; color:var(--muted2); }
+
+  .gen-link {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 20px; background:linear-gradient(135deg,#10b981,#2dd4bf);
+    color:#060910; font-family:'Clash Display',sans-serif; font-size:13px; font-weight:700;
+    border-radius:10px; text-decoration:none; margin-bottom:28px; transition:all 0.2s;
+  }
+  .gen-link:hover { opacity:0.85; transform:translateY(-1px); }
+
+  .hcard {
+    background:var(--card); border:1px solid var(--border2);
+    border-radius:16px; padding:24px 28px;
+    margin-bottom:16px; transition:border-color 0.2s, transform 0.2s;
+    text-decoration:none; color:var(--text); display:block;
+  }
+  .hcard:hover { border-color:var(--border); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.3); }
+
+  .hcard-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:14px; }
+  .hcard-icon { font-size:28px; margin-right:4px; flex-shrink:0; }
+  .hcard-title { font-family:'Clash Display',sans-serif; font-size:17px; font-weight:700; margin-bottom:5px; }
+  .hcard-goal { font-size:13px; color:var(--muted2); line-height:1.5; }
+  .hcard-meta { display:flex; gap:8px; flex-wrap:wrap; }
+  .pill { display:inline-flex; align-items:center; gap:5px; padding:4px 11px; border-radius:20px; font-size:12px; font-weight:500; white-space:nowrap; }
+  .pill.g { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); color:var(--green); }
+  .pill.t { background:rgba(45,212,191,0.1); border:1px solid rgba(45,212,191,0.2); color:var(--teal); }
+  .pill.b { background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); color:var(--blue); }
+
+  /* Progress mini bar */
+  .mini-progress { margin-top:14px; }
+  .mp-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .mp-bar { height:5px; background:var(--surface); border-radius:3px; overflow:hidden; }
+  .mp-fill { height:100%; background:linear-gradient(90deg,#10b981,#2dd4bf); border-radius:3px; }
+
+  .empty-state { text-align:center; padding:64px 24px; }
+  .empty-state .em { font-size:56px; margin-bottom:16px; }
+  .empty-state h3 { font-family:'Clash Display',sans-serif; font-size:22px; font-weight:700; margin-bottom:8px; }
+  .empty-state p { font-size:14px; color:var(--muted2); margin-bottom:24px; }
+
+  @media(max-width:600px) { .page{padding:20px 16px;} .hcard-top{flex-direction:column;} }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page page">
+  <div class="ph">
+    <h1>📜 Path History</h1>
+    <p>All your AI-generated learning roadmaps in one place.</p>
+  </div>
+
+  <a href="{% url 'generate' %}" class="gen-link">✨ Generate New Roadmap</a>
+
+  {% if roadmaps %}
+    {% for r in roadmaps %}
+    <a href="{% url 'roadmap' r.pk %}" class="hcard">
+      <div class="hcard-top">
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+          <span class="hcard-icon">🗺️</span>
+          <div>
+            <div class="hcard-title">{{ r.title }}</div>
+            <div class="hcard-goal">🎯 {{ r.goal|truncatechars:80 }}</div>
+          </div>
+        </div>
+        <div class="hcard-meta">
+          <span class="pill g">{{ r.total_weeks }} weeks</span>
+          <span class="pill t">{{ r.created_at|date:"M d, Y" }}</span>
+          <span class="pill b">{{ r.progress.count }} steps</span>
+        </div>
+      </div>
+      {% with total=r.progress.count %}
+      {% if total > 0 %}
+      {% with done=r.progress.filter %}
+      <div class="mini-progress">
+        <div class="mp-label">
+          <span>Progress</span>
+          <span>{{ total }} steps</span>
+        </div>
+        <div class="mp-bar"><div class="mp-fill" style="width:0%"></div></div>
+      </div>
+      {% endwith %}
+      {% endif %}
+      {% endwith %}
+    </a>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">
+      <div class="em">🗺️</div>
+      <h3>No paths yet</h3>
+      <p>Generate your first AI learning roadmap to get started on your journey.</p>
+      <a href="{% url 'generate' %}" class="gen-link">✨ Generate My First Roadmap</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

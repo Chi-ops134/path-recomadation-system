@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Delete Account — LearnPath AI{% endblock %}
+{% block extra_css %}
+<style>
+  body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px; }
+  .del-card { max-width:440px; width:100%; background:var(--card); border:1px solid rgba(248,113,113,0.2); border-radius:22px; padding:40px; text-align:center; animation:fadeUp 0.4s ease both; }
+  .del-icon { font-size:52px; margin-bottom:20px; }
+  h2 { font-family:'Clash Display',sans-serif; font-size:24px; font-weight:700; margin-bottom:10px; color:var(--error); }
+  p { font-size:15px; color:var(--muted2); line-height:1.6; margin-bottom:28px; }
+  .btn-row { display:flex; gap:12px; }
+  .btn-cancel {
+    flex:1; padding:13px; background:transparent;
+    border:1px solid var(--border2); border-radius:12px;
+    color:var(--muted2); font-size:14px; font-weight:500;
+    text-decoration:none; display:flex; align-items:center; justify-content:center;
+    transition:all 0.2s;
+  }
+  .btn-cancel:hover { border-color:var(--muted); color:var(--text); }
+  .btn-confirm {
+    flex:1; padding:13px;
+    background:linear-gradient(135deg, #f87171, #ef4444);
+    color:#fff; font-family:'Clash Display',sans-serif;
+    font-size:15px; font-weight:700; border:none; border-radius:12px;
+    cursor:pointer; transition:all 0.2s;
+  }
+  .btn-confirm:hover { opacity:0.85; transform:translateY(-1px); box-shadow:0 8px 24px rgba(248,113,113,0.3); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="del-card">
+  <div class="del-icon">⚠️</div>
+  <h2>Delete Account?</h2>
+  <p>You are about to permanently delete your account, profile, and all your generated learning paths. <strong>This cannot be undone.</strong></p>
+  <div class="btn-row">
+    <a href="{% url 'profile' %}" class="btn-cancel">Cancel</a>
+    <form method="POST" style="flex:1;">
+      {% csrf_token %}
+      <button type="submit" class="btn-confirm" style="width:100%;">Yes, Delete</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
